@@ -1,6 +1,6 @@
 # redmine_cli
 
-Redmine の REST API をコマンドラインから操作できる CLI ツール。
+Redmine の REST API をコマンドラインから操作できる CLI ツール。Rust 製。
 
 ## 概要
 
@@ -23,15 +23,15 @@ redmine issues update 1234 --status "In Progress" --assigned-to me
 ## インストール
 
 ```bash
-pip install redmine-cli
+cargo install --git https://github.com/uwork/redmine_cli
 ```
 
-または開発版:
+またはソースからビルド:
 
 ```bash
 git clone https://github.com/uwork/redmine_cli.git
 cd redmine_cli
-pip install -e .
+cargo build --release
 ```
 
 ## 設定
@@ -77,7 +77,7 @@ redmine config set --url https://your-redmine.example.com --api-key YOUR_API_KEY
 ### その他
 - [ ] ページネーション対応
 - [ ] 環境変数による設定上書き (`REDMINE_URL`, `REDMINE_API_KEY`)
-- [ ] シェル補完スクリプト生成
+- [ ] シェル補完スクリプト生成 (`clap_complete`)
 
 ## ライセンス
 
