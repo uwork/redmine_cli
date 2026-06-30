@@ -1,9 +1,9 @@
-use anyhow::Result;
-use clap::{Args, Subcommand};
-use tabled::{Table, Tabled};
 use crate::client::RedmineClient;
 use crate::config::Config;
 use crate::models::{CreateIssue, CreateIssueRequest, UpdateIssue, UpdateIssueRequest};
+use anyhow::Result;
+use clap::{Args, Subcommand};
+use tabled::{Table, Tabled};
 
 #[derive(Args)]
 pub struct IssuesArgs {
@@ -23,9 +23,7 @@ pub enum IssuesCommand {
         limit: u32,
     },
     /// チケットの詳細を表示する
-    Show {
-        id: u32,
-    },
+    Show { id: u32 },
     /// チケットを作成する
     Create {
         #[arg(short, long, help = "プロジェクト識別子")]
@@ -68,7 +66,11 @@ pub async fn run(args: IssuesArgs) -> Result<()> {
     let client = RedmineClient::new(config.require_url()?, config.require_api_key()?)?;
 
     match args.command {
-        IssuesCommand::List { project, assigned_to, limit } => {
+        IssuesCommand::List {
+            project,
+            assigned_to,
+            limit,
+        } => {
             let mut query = format!("/issues.json?limit={limit}&status_id=open");
             if let Some(p) = project {
                 query.push_str(&format!("&project_id={p}"));
@@ -77,14 +79,18 @@ pub async fn run(args: IssuesArgs) -> Result<()> {
                 query.push_str(&format!("&assigned_to_id={a}"));
             }
             let res: crate::models::IssuesResponse = client.get_json(&query).await?;
-            let rows: Vec<IssueRow> = res.issues.into_iter().map(|i| IssueRow {
-                id: i.id,
-                project: i.project.name,
-                status: i.status.name,
-                priority: i.priority.name,
-                subject: i.subject,
-                assigned_to: i.assigned_to.map(|a| a.name).unwrap_or_default(),
-            }).collect();
+            let rows: Vec<IssueRow> = res
+                .issues
+                .into_iter()
+                .map(|i| IssueRow {
+                    id: i.id,
+                    project: i.project.name,
+                    status: i.status.name,
+                    priority: i.priority.name,
+                    subject: i.subject,
+                    assigned_to: i.assigned_to.map(|a| a.name).unwrap_or_default(),
+                })
+                .collect();
             println!("{}", Table::new(rows));
         }
         IssuesCommand::Show { id } => {
@@ -96,7 +102,10 @@ pub async fn run(args: IssuesArgs) -> Result<()> {
             println!("件名     : {}", i.subject);
             println!("ステータス: {}", i.status.name);
             println!("優先度   : {}", i.priority.name);
-            println!("担当者   : {}", i.assigned_to.map(|a| a.name).unwrap_or_default());
+            println!(
+                "担当者   : {}",
+                i.assigned_to.map(|a| a.name).unwrap_or_default()
+            );
             println!("作成者   : {}", i.author.name);
             println!("進捗    : {}%", i.done_ratio);
             println!("作成日   : {}", i.created_on);
@@ -105,7 +114,11 @@ pub async fn run(args: IssuesArgs) -> Result<()> {
                 println!("\n{desc}");
             }
         }
-        IssuesCommand::Create { project, subject, description } => {
+        IssuesCommand::Create {
+            project,
+            subject,
+            description,
+        } => {
             let body = CreateIssueRequest {
                 issue: CreateIssue {
                     project_id: project,
@@ -115,11 +128,15 @@ pub async fn run(args: IssuesArgs) -> Result<()> {
                     assigned_to_id: None,
                 },
             };
-            let res: crate::models::IssueResponse =
-                client.post_json("/issues.json", &body).await?;
+            let res: crate::models::IssueResponse = client.post_json("/issues.json", &body).await?;
             println!("チケットを作成しました: #{}", res.issue.id);
         }
-        IssuesCommand::Update { id, status, assigned_to, notes } => {
+        IssuesCommand::Update {
+            id,
+            status,
+            assigned_to,
+            notes,
+        } => {
             let body = UpdateIssueRequest {
                 issue: UpdateIssue {
                     status_id: status,
@@ -128,7 +145,9 @@ pub async fn run(args: IssuesArgs) -> Result<()> {
                     ..Default::default()
                 },
             };
-            client.put_json(&format!("/issues/{id}.json"), &body).await?;
+            client
+                .put_json(&format!("/issues/{id}.json"), &body)
+                .await?;
             println!("チケット #{id} を更新しました");
         }
     }

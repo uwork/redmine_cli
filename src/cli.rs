@@ -1,5 +1,5 @@
-use clap::{Parser, Subcommand};
 use crate::commands::{config, issues, projects, users};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "redmine", about = "Redmine API CLI tool", version)]

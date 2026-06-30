@@ -1,6 +1,6 @@
+use crate::config::Config;
 use anyhow::Result;
 use clap::{Args, Subcommand};
-use crate::config::Config;
 
 #[derive(Args)]
 pub struct ConfigArgs {
@@ -37,7 +37,10 @@ pub async fn run(args: ConfigArgs) -> Result<()> {
         ConfigCommand::Show => {
             let config = Config::load()?;
             println!("url     : {}", config.url.as_deref().unwrap_or("(未設定)"));
-            println!("api_key : {}", config.api_key.as_deref().unwrap_or("(未設定)"));
+            println!(
+                "api_key : {}",
+                config.api_key.as_deref().unwrap_or("(未設定)")
+            );
         }
     }
     Ok(())

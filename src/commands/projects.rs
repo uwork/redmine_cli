@@ -1,8 +1,8 @@
+use crate::client::RedmineClient;
+use crate::config::Config;
 use anyhow::Result;
 use clap::{Args, Subcommand};
 use tabled::{Table, Tabled};
-use crate::client::RedmineClient;
-use crate::config::Config;
 
 #[derive(Args)]
 pub struct ProjectsArgs {
@@ -36,11 +36,15 @@ pub async fn run(args: ProjectsArgs) -> Result<()> {
         ProjectsCommand::List => {
             let res: crate::models::ProjectsResponse =
                 client.get_json("/projects.json?limit=100").await?;
-            let rows: Vec<ProjectRow> = res.projects.into_iter().map(|p| ProjectRow {
-                id: p.id,
-                identifier: p.identifier,
-                name: p.name,
-            }).collect();
+            let rows: Vec<ProjectRow> = res
+                .projects
+                .into_iter()
+                .map(|p| ProjectRow {
+                    id: p.id,
+                    identifier: p.identifier,
+                    name: p.name,
+                })
+                .collect();
             println!("{}", Table::new(rows));
         }
         ProjectsCommand::Show { id } => {

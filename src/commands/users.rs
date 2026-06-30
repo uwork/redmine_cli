@@ -1,8 +1,8 @@
+use crate::client::RedmineClient;
+use crate::config::Config;
 use anyhow::Result;
 use clap::{Args, Subcommand};
 use tabled::{Table, Tabled};
-use crate::client::RedmineClient;
-use crate::config::Config;
 
 #[derive(Args)]
 pub struct UsersArgs {
@@ -38,20 +38,23 @@ pub async fn run(args: UsersArgs) -> Result<()> {
         UsersCommand::List => {
             let res: crate::models::UsersResponse =
                 client.get_json("/users.json?limit=100").await?;
-            let rows: Vec<UserRow> = res.users.into_iter().map(|u| {
-                let name = u.full_name();
-                UserRow {
-                    id: u.id,
-                    login: u.login,
-                    name,
-                    mail: u.mail.unwrap_or_default(),
-                }
-            }).collect();
+            let rows: Vec<UserRow> = res
+                .users
+                .into_iter()
+                .map(|u| {
+                    let name = u.full_name();
+                    UserRow {
+                        id: u.id,
+                        login: u.login,
+                        name,
+                        mail: u.mail.unwrap_or_default(),
+                    }
+                })
+                .collect();
             println!("{}", Table::new(rows));
         }
         UsersCommand::Me => {
-            let res: crate::models::UserResponse =
-                client.get_json("/users/current.json").await?;
+            let res: crate::models::UserResponse = client.get_json("/users/current.json").await?;
             let u = res.user;
             println!("ID       : {}", u.id);
             println!("ログイン名: {}", u.login);

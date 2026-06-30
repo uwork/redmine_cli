@@ -46,15 +46,16 @@ impl RedmineClient {
         path: &str,
         body: &B,
     ) -> Result<T> {
-        let res = self.post(path).json(body).send().await?.error_for_status()?;
+        let res = self
+            .post(path)
+            .json(body)
+            .send()
+            .await?
+            .error_for_status()?;
         Ok(res.json().await?)
     }
 
-    pub async fn put_json<B: serde::Serialize>(
-        &self,
-        path: &str,
-        body: &B,
-    ) -> Result<()> {
+    pub async fn put_json<B: serde::Serialize>(&self, path: &str, body: &B) -> Result<()> {
         self.put(path).json(body).send().await?.error_for_status()?;
         Ok(())
     }
