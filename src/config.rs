@@ -59,3 +59,66 @@ impl Config {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn require_url_returns_error_when_not_set() {
+        let config = Config { url: None, api_key: None };
+        assert!(config.require_url().is_err());
+    }
+
+    #[test]
+    fn require_url_returns_url_when_set() {
+        let config = Config {
+            url: Some("https://redmine.example.com".to_string()),
+            api_key: None,
+        };
+        assert_eq!(config.require_url().unwrap(), "https://redmine.example.com");
+    }
+
+    #[test]
+    fn require_api_key_returns_error_when_not_set() {
+        let config = Config { url: None, api_key: None };
+        assert!(config.require_api_key().is_err());
+    }
+
+    #[test]
+    fn require_api_key_returns_key_when_set() {
+        let config = Config {
+            url: None,
+            api_key: Some("secret-key-abc".to_string()),
+        };
+        assert_eq!(config.require_api_key().unwrap(), "secret-key-abc");
+    }
+
+    #[test]
+    fn config_default_has_no_url_or_key() {
+        let config = Config::default();
+        assert!(config.url.is_none());
+        assert!(config.api_key.is_none());
+    }
+
+    #[test]
+    fn config_toml_round_trip() {
+        let config = Config {
+            url: Some("https://redmine.example.com".to_string()),
+            api_key: Some("abc123".to_string()),
+        };
+        let toml_str = toml::to_string_pretty(&config).unwrap();
+        let parsed: Config = toml::from_str(&toml_str).unwrap();
+        assert_eq!(parsed.url, config.url);
+        assert_eq!(parsed.api_key, config.api_key);
+    }
+
+    #[test]
+    fn config_toml_round_trip_with_none_fields() {
+        let config = Config { url: None, api_key: None };
+        let toml_str = toml::to_string_pretty(&config).unwrap();
+        let parsed: Config = toml::from_str(&toml_str).unwrap();
+        assert!(parsed.url.is_none());
+        assert!(parsed.api_key.is_none());
+    }
+}
