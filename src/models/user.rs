@@ -83,9 +83,6 @@ mod tests {
         let user: User = serde_json::from_str(json).unwrap();
         assert_eq!(user.full_name(), "Bob Jones");
         assert!(user.mail.is_none());
-        assert_eq!(
-            user.last_login_on.as_deref(),
-            Some("2024-06-30T12:00:00Z")
-        );
+        assert_eq!(user.last_login_on.as_deref(), Some("2024-06-30T12:00:00Z"));
     }
 }

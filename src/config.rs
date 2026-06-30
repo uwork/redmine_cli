@@ -66,7 +66,10 @@ mod tests {
 
     #[test]
     fn require_url_returns_error_when_not_set() {
-        let config = Config { url: None, api_key: None };
+        let config = Config {
+            url: None,
+            api_key: None,
+        };
         assert!(config.require_url().is_err());
     }
 
@@ -81,7 +84,10 @@ mod tests {
 
     #[test]
     fn require_api_key_returns_error_when_not_set() {
-        let config = Config { url: None, api_key: None };
+        let config = Config {
+            url: None,
+            api_key: None,
+        };
         assert!(config.require_api_key().is_err());
     }
 
@@ -115,7 +121,10 @@ mod tests {
 
     #[test]
     fn config_toml_round_trip_with_none_fields() {
-        let config = Config { url: None, api_key: None };
+        let config = Config {
+            url: None,
+            api_key: None,
+        };
         let toml_str = toml::to_string_pretty(&config).unwrap();
         let parsed: Config = toml::from_str(&toml_str).unwrap();
         assert!(parsed.url.is_none());
