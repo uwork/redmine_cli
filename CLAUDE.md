@@ -33,6 +33,10 @@ cargo clippy      # Lint
 cargo fmt         # フォーマット
 ```
 
+## テスト方針
+
+→ `.claude/rules/testing.md` を参照。
+
 ## ディレクトリ構成
 
 ```

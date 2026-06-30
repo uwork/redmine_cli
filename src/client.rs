@@ -60,3 +60,32 @@ impl RedmineClient {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new_client_trims_trailing_slash() {
+        let client = RedmineClient::new("https://example.com/", "key").unwrap();
+        assert_eq!(client.base_url, "https://example.com");
+    }
+
+    #[test]
+    fn new_client_trims_multiple_trailing_slashes() {
+        let client = RedmineClient::new("https://example.com///", "key").unwrap();
+        assert_eq!(client.base_url, "https://example.com");
+    }
+
+    #[test]
+    fn new_client_keeps_url_without_trailing_slash() {
+        let client = RedmineClient::new("https://example.com", "key").unwrap();
+        assert_eq!(client.base_url, "https://example.com");
+    }
+
+    #[test]
+    fn new_client_stores_api_key() {
+        let client = RedmineClient::new("https://example.com", "my-secret-key").unwrap();
+        assert_eq!(client.api_key, "my-secret-key");
+    }
+}
