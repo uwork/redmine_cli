@@ -18,12 +18,23 @@ impl Config {
 
     pub fn load() -> Result<Self> {
         let path = Self::path();
-        if !path.exists() {
-            return Ok(Self::default());
+        let mut config: Self = if path.exists() {
+            let content = std::fs::read_to_string(&path).with_context(|| {
+                format!("設定ファイルの読み込みに失敗しました: {}", path.display())
+            })?;
+            toml::from_str(&content).context("設定ファイルのパースに失敗しました")?
+        } else {
+            Self::default()
+        };
+
+        if let Ok(url) = std::env::var("REDMINE_CLI_URL") {
+            config.url = Some(url);
         }
-        let content = std::fs::read_to_string(&path)
-            .with_context(|| format!("設定ファイルの読み込みに失敗しました: {}", path.display()))?;
-        toml::from_str(&content).context("設定ファイルのパースに失敗しました")
+        if let Ok(api_key) = std::env::var("REDMINE_CLI_API_KEY") {
+            config.api_key = Some(api_key);
+        }
+
+        Ok(config)
     }
 
     pub fn save(&self) -> Result<()> {
