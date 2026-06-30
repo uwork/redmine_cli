@@ -19,8 +19,9 @@ impl Config {
     pub fn load() -> Result<Self> {
         let path = Self::path();
         let mut config: Self = if path.exists() {
-            let content = std::fs::read_to_string(&path)
-                .with_context(|| format!("設定ファイルの読み込みに失敗しました: {}", path.display()))?;
+            let content = std::fs::read_to_string(&path).with_context(|| {
+                format!("設定ファイルの読み込みに失敗しました: {}", path.display())
+            })?;
             toml::from_str(&content).context("設定ファイルのパースに失敗しました")?
         } else {
             Self::default()
